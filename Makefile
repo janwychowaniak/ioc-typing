@@ -1,7 +1,9 @@
-.PHONY: test lint format build clean clean-all
+.PHONY: test lint format build clean clean-all dev check
 
 test:
 	tox
+
+check: format lint
 
 lint:
 	tox -e lint
@@ -16,4 +18,7 @@ clean:
 	tox -e clean
 
 clean-all:
-	tox -e clean-all 
+	tox -e clean-all
+
+dev:
+	tox -e dev 
