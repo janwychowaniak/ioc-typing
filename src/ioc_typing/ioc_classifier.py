@@ -14,14 +14,15 @@ class IOCClassifier:
     - URLs (including various protocols and complex structures)
     - Cryptographic hashes (MD5, SHA1, SHA256)
 
-    The classifier uses regular expressions to identify and validate each type of indicator.
+    The classifier uses regular expressions to identify and validate each type of
+    indicator.
     For each input, it returns a dictionary containing:
         - determined: Boolean indicating if the input was successfully classified
         - type_pri: Primary type (e.g., "ip", "domain", "url", "hash")
-        - type_sec: Secondary type where applicable (e.g., "v4"/"v6" for IPs, hash types)
+        - type_sec: Secondary type where applicable (e.g. "v4"/"v6" for IPs, hash types)
 
-    The class is designed to be strict in its classifications to minimize false positives,
-    while still being flexible enough to handle common variations in format.
+    The class is designed to be strict in its classifications to minimize false
+    positives, while still being flexible enough to handle common variations in format.
     """
 
     def __init__(self):
@@ -30,7 +31,8 @@ class IOCClassifier:
     def _compile_patterns(self) -> Dict[str, Pattern]:
         """
         Compile all regex patterns used for classification.
-        Returns a dictionary of compiled patterns for better performance and organization.
+        Returns a dictionary of compiled patterns for better performance and
+        organization.
         """
         # IP patterns
         ipv4_pattern = (
@@ -134,7 +136,7 @@ class IOCClassifier:
             query (str): The string to classify
 
         Returns:
-            dict: Classification result containing query, determined status, and type information
+            dict: Classification result with query, determined status and type info
         """
 
         # Check IP addresses first (most specific)
