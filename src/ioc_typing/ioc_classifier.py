@@ -140,22 +140,22 @@ class IOCClassifier:
         """
 
         # Check IP addresses first (most specific)
-        if self.patterns["ipv4"].match(query):
+        if self.patterns["ipv4"].fullmatch(query):
             return self._create_result(query, "ip", "v4")
-        if self.patterns["ipv6"].match(query):
+        if self.patterns["ipv6"].fullmatch(query):
             return self._create_result(query, "ip", "v6")
 
         # Check hashes (specific patterns)
         for hash_type in ["md5", "sha1", "sha256"]:
-            if self.patterns[hash_type].match(query):
+            if self.patterns[hash_type].fullmatch(query):
                 return self._create_result(query, "hash", hash_type)
 
         # Check URL before domain (URLs are more specific)
-        if self.patterns["url"].match(query):
+        if self.patterns["url"].fullmatch(query):
             return self._create_result(query, "url", None)
 
         # Check domain last (most general)
-        if self.patterns["domain"].match(query):
+        if self.patterns["domain"].fullmatch(query):
             return self._create_result(query, "domain", None)
 
         return {"query": query, "determined": False, "type_pri": None, "type_sec": None}

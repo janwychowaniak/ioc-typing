@@ -50,6 +50,10 @@ class TestIPv6Classification:
             "::",
             "fe80::1",
             "fe80::217:f2ff:fe07:ed62",
+            "fe80::1%eth0",  # Zone-id (link-local scope)
+            "fe80::217:f2ff:fe07:ed62%en0",
+            "::ffff:192.168.1.1",  # IPv4-mapped IPv6
+            "2001:db8::192.168.1.1",  # IPv6 with embedded IPv4
         ]
         for ip in valid_ips:
             result = classifier.classify(ip)
@@ -235,9 +239,40 @@ class TestMiscClassification:
             "abcdef",  # Just letters
             "@#$%^&*()",  # Special characters
             "a" * 100,  # Long string
+            "  192.168.1.1",  # Leading whitespace around an otherwise-valid IP
+            "192.168.1.1  ",  # Trailing whitespace
+            "\texample.com",  # Leading tab
+            "example.com\n",  # Trailing newline
         ]
         for input_value in unclassifiable:
             result = classifier.classify(input_value)
             assert result["determined"] is False
             assert result["type_pri"] is None
             assert result["type_sec"] is None
+
+    def test_non_string_input_raises(self, classifier):
+        # classify() accepts str only; non-str inputs surface as TypeError
+        # from the underlying re.match call. Pin that contract here.
+        for bad_input in [None, 123, 1.5, b"192.168.1.1", ["192.168.1.1"]]:
+            with pytest.raises(TypeError):
+                classifier.classify(bad_input)
+
+
+class TestResultContract:
+    @pytest.mark.parametrize(
+        "query",
+        [
+            "192.168.1.1",
+            "2001:db8::1",
+            "d41d8cd98f00b204e9800998ecf8427e",
+            "https://example.com/path",
+            "example.com",
+            "not an IOC",
+        ],
+    )
+    def test_query_field_is_preserved(self, classifier, query):
+        # The result dict must echo the input string verbatim, regardless
+        # of whether the input was classified.
+        result = classifier.classify(query)
+        assert result["query"] == query
+        assert set(result.keys()) == {"query", "determined", "type_pri", "type_sec"}
