@@ -21,22 +21,36 @@ classifiers = [
 keywords = ["security", "ioc", "classifier", "cyber-security"]
 dependencies = []
 
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.0",
-    "pytest-cov",
-    "ruff>=0.6",
-    "mypy>=1.10",
-    "build",
-    "twine",
-    "tox",
-]
-
 [project.urls]
 Homepage = "https://github.com/janwychowaniak/ioc-typing"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ioc_typing"]
+
+[tool.hatch.envs.default]
+dependencies = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "ruff>=0.6",
+    "mypy>=1.10",
+]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest -v --cov=src {args:tests}"
+lint = [
+    "ruff check src tests",
+    "ruff format --check src tests",
+]
+format = [
+    "ruff format src tests",
+    "ruff check --fix src tests",
+]
+typecheck = "mypy src tests"
+check = [
+    "lint",
+    "typecheck",
+    "test",
+]
 
 [tool.ruff]
 line-length = 88

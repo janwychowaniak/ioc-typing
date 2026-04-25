@@ -9,11 +9,16 @@ From PyPI (stable release):
 pip install ioc-typing
 ```
 
-For development:
+For development (uses [Hatch](https://hatch.pypa.io/)):
 ```bash
 git clone https://github.com/janwychowaniak/ioc-typing.git
 cd ioc-typing
-pip install -e ".[dev]"  # or "make dev" for easily creating a local venv
+hatch run test       # run tests with coverage
+hatch run lint       # ruff check + format check
+hatch run format     # apply ruff formatting and autofixes
+hatch run typecheck  # mypy
+hatch run check      # lint + typecheck + test
+hatch build          # build sdist + wheel
 ```
 
 ## Usage
