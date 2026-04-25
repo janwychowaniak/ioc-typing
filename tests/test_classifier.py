@@ -84,6 +84,8 @@ class TestDomainClassification:
             "example123.com",
             "example.co.uk",
             "xn--80ak6aa92e.com",  # Punycode domain
+            "example.com.",  # FQDN form (RFC 1034 root-zone trailing dot)
+            "sub.example.com.",
         ]
         for domain in valid_domains:
             result = classifier.classify(domain)
@@ -98,7 +100,7 @@ class TestDomainClassification:
         invalid_domains = [
             "example",  # No TLD
             ".example.com",  # Leading dot
-            "example.com.",  # Trailing dot
+            "example.com..",  # Double trailing dot
             "-example.com",  # Leading hyphen
             "example-.com",  # Trailing hyphen
             "exam ple.com",  # Space

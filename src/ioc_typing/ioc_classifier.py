@@ -67,9 +67,9 @@ class IOCClassifier:
             "sha256": r"^[a-fA-F0-9]{64}$",
         }
 
-        # Domain pattern
+        # Domain pattern (trailing dot is allowed — RFC 1034 FQDN form)
         domain_pattern = (
-            r"^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)" r"+[a-zA-Z]{2,}$"
+            r"^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)" r"+[a-zA-Z]{2,}\.?$"
         )
 
         # URL components
