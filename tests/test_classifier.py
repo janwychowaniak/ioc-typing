@@ -83,12 +83,12 @@ class TestDomainClassification:
         ]
         for domain in valid_domains:
             result = classifier.classify(domain)
-            assert (
-                result["determined"] is True
-            ), f"Failed to classify valid domain: {domain}"
-            assert (
-                result["type_pri"] == "domain"
-            ), f"Wrong classification for domain: {domain}"
+            assert result["determined"] is True, (
+                f"Failed to classify valid domain: {domain}"
+            )
+            assert result["type_pri"] == "domain", (
+                f"Wrong classification for domain: {domain}"
+            )
 
     def test_invalid_domains(self, classifier):
         invalid_domains = [
