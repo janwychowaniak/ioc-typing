@@ -20,7 +20,7 @@ All workflows go through `tox` (wrapped by `make`):
 
 Run a single test: `tox -- tests/test_classifier.py::TestIPv4Classification::test_valid_ipv4` (everything after `--` is forwarded to pytest via `{posargs}`).
 
-`tox.ini` runs against `py310, py311, py312` (matching `requires-python = ">=3.10"` in `pyproject.toml`). flake8 is configured for `max-line-length = 88` with `E203` ignored (Black-compatible).
+`tox.ini` runs against `py310, py311, py312, py313` (matching `requires-python = ">=3.10"` in `pyproject.toml`). flake8 is configured for `max-line-length = 88` with `E203` ignored (Black-compatible).
 
 ## Architecture
 
@@ -34,4 +34,4 @@ Every classification returns the same shape: `{"query", "determined", "type_pri"
 
 ## Python compatibility
 
-The project targets Python 3.10+ (`pyproject.toml` sets `requires-python = ">=3.10"`, with classifiers for 3.10/3.11/3.12). `_create_result` in `ioc_classifier.py` uses PEP 604 `str | None` syntax, which is fine on 3.10+. If you ever need to lower the floor below 3.10, switch those annotations to `Optional[str]` and update both `requires-python` and `tox.ini`'s `envlist`.
+The project targets Python 3.10+ (`pyproject.toml` sets `requires-python = ">=3.10"`, with classifiers for 3.10/3.11/3.12/3.13). `_create_result` in `ioc_classifier.py` uses PEP 604 `str | None` syntax, which is fine on 3.10+. If you ever need to lower the floor below 3.10, switch those annotations to `Optional[str]` and update both `requires-python` and `tox.ini`'s `envlist`.
