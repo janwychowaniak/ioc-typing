@@ -105,15 +105,23 @@ class IOCClassifier:
             + url_components["protocol"]
             + r")"
             + url_components["host"]
-            + r"(?:"
+            + r"(?="
             + url_components["port"]
             + r"|"
             + url_components["path"]
-            + r"+|"
+            + r"|"
             + url_components["query"]
             + r"|"
             + url_components["fragment"]
             + r")"
+            + url_components["port"]
+            + r"?"
+            + url_components["path"]
+            + r"?"
+            + url_components["query"]
+            + r"?"
+            + url_components["fragment"]
+            + r"?"
             + r")$"
         )
 

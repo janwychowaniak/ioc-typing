@@ -189,15 +189,24 @@ class TestURLClassification:
 
     def test_schemeless_url_variants(self, classifier):
         # The schemeless branch of the URL regex requires the bare host to
-        # be followed by EXACTLY ONE of port/path/query/fragment. Without
-        # a trailing component "example.com" is a domain; combining multiple
-        # components without a scheme (e.g. "example.com:8080/path") falls
-        # through to unclassified — known limitation of the regex.
+        # be followed by at least one of port/path/query/fragment (in that
+        # order). Without any trailing component, "example.com" stays a
+        # domain.
         schemeless_urls = [
             "example.com:8080",  # host + port
             "example.com/path",  # host + path
             "example.com?q=1",  # host + query
             "example.com#section",  # host + fragment
+            # Combined components (URL-spec order: port, path, query, fragment)
+            "example.com:8080/path",
+            "example.com:8080/path?q=1",
+            "example.com:8080/path?q=1#x",
+            "sub.example.com:443/api?v=2#x",
+            "localhost:3000/foo",
+            "192.168.1.1:8080/api",
+            "example.com/path?q=1",
+            "example.com/path#x",
+            "example.com?q=1#x",
         ]
         for url in schemeless_urls:
             result = classifier.classify(url)
@@ -207,6 +216,13 @@ class TestURLClassification:
             assert (
                 result["type_pri"] == "url"
             ), f"Wrong classification for schemeless URL: {url}"
+
+    def test_bare_host_is_not_url(self, classifier):
+        # A host with no port/path/query/fragment must not match the
+        # schemeless URL branch — it should fall through to the domain
+        # check (or remain unclassified for trailing-dot etc.).
+        result = classifier.classify("example.com")
+        assert result["type_pri"] == "domain"
 
 
 class TestHashClassification:
