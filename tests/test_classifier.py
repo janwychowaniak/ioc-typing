@@ -187,6 +187,27 @@ class TestURLClassification:
             assert result["determined"] is True, f"Failed to classify valid URL: {url}"
             assert result["type_pri"] == "url", f"Wrong classification for URL: {url}"
 
+    def test_schemeless_url_variants(self, classifier):
+        # The schemeless branch of the URL regex requires the bare host to
+        # be followed by EXACTLY ONE of port/path/query/fragment. Without
+        # a trailing component "example.com" is a domain; combining multiple
+        # components without a scheme (e.g. "example.com:8080/path") falls
+        # through to unclassified — known limitation of the regex.
+        schemeless_urls = [
+            "example.com:8080",  # host + port
+            "example.com/path",  # host + path
+            "example.com?q=1",  # host + query
+            "example.com#section",  # host + fragment
+        ]
+        for url in schemeless_urls:
+            result = classifier.classify(url)
+            assert (
+                result["determined"] is True
+            ), f"Failed to classify schemeless URL: {url}"
+            assert (
+                result["type_pri"] == "url"
+            ), f"Wrong classification for schemeless URL: {url}"
+
 
 class TestHashClassification:
     def test_valid_hashes(self, classifier):
@@ -194,14 +215,19 @@ class TestHashClassification:
             "md5": [
                 "d41d8cd98f00b204e9800998ecf8427e",
                 "e4d909c290d0fb1ca068ffaddf22cbd0",
+                "D41D8CD98F00B204E9800998ECF8427E",  # Uppercase
+                "D41d8CD98f00B204e9800998ECF8427e",  # Mixed case
             ],
             "sha1": [
                 "da39a3ee5e6b4b0d3255bfef95601890afd80709",
                 "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3",
+                "DA39A3EE5E6B4B0D3255BFEF95601890AFD80709",  # Uppercase
             ],
             "sha256": [
                 "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                 "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+                # Uppercase
+                "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
             ],
         }
         for hash_type, hashes in valid_hashes.items():
@@ -215,14 +241,18 @@ class TestHashClassification:
         invalid_hashes = [
             "d41d8cd98f00b204e9800998ecf8427",  # Too short MD5
             "d41d8cd98f00b204e9800998ecf8427ef",  # Too long MD5
-            "d41d8cd98f00b204e9800998ecf8427g",  # Invalid character
+            "d41d8cd98f00b204e9800998ecf8427g",  # MD5-length, invalid char
             "da39a3ee5e6b4b0d3255bfef95601890afd8070",  # Too short SHA1
             "da39a3ee5e6b4b0d3255bfef95601890afd80709a",  # Too long SHA1
+            # SHA1-length, invalid char ("z" at the end)
+            "da39a3ee5e6b4b0d3255bfef95601890afd8070z",
             # Too short SHA256
             "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b85",
             # Too long SHA256
             "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8555",
-            "abcdefghijklmnopqrstuvwxyz123456",  # Valid length but invalid chars
+            # SHA256-length, invalid char ("z" at the end)
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b85z",
+            "abcdefghijklmnopqrstuvwxyz123456",  # MD5-length, all non-hex letters
         ]
         for hash_value in invalid_hashes:
             result = classifier.classify(hash_value)
