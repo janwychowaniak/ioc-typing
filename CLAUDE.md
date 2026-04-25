@@ -20,7 +20,7 @@ All workflows go through `tox` (wrapped by `make`):
 
 Run a single test: `tox -- tests/test_classifier.py::TestIPv4Classification::test_valid_ipv4` (everything after `--` is forwarded to pytest via `{posargs}`).
 
-`tox.ini` currently pins `envlist = py310`; the multi-version list is commented out. flake8 is configured for `max-line-length = 88` with `E203` ignored (Black-compatible).
+`tox.ini` runs against `py310, py311, py312` (matching `requires-python = ">=3.10"` in `pyproject.toml`). flake8 is configured for `max-line-length = 88` with `E203` ignored (Black-compatible).
 
 ## Architecture
 
@@ -32,6 +32,6 @@ The entire classifier lives in `src/ioc_typing/ioc_classifier.py`. Two design po
 
 Every classification returns the same shape: `{"query", "determined", "type_pri", "type_sec"}`. `type_sec` is `"v4"`/`"v6"` for IPs, the hash name for hashes, and `None` for URLs/domains. Unclassified inputs return `determined=False` with both type fields `None`. Tests in `tests/test_classifier.py` assert this contract per category — extending the classifier means adding both a positive and a negative test class following the existing pattern.
 
-## Python compatibility note
+## Python compatibility
 
-`pyproject.toml` declares `requires-python = ">=3.7"`, but `_create_result` in `ioc_classifier.py` uses PEP 604 `str | None` syntax which requires 3.10+. Either keep targeting 3.10 (matches `tox.ini`) or switch to `Optional[str]` if you genuinely need to support 3.7–3.9.
+The project targets Python 3.10+ (`pyproject.toml` sets `requires-python = ">=3.10"`, with classifiers for 3.10/3.11/3.12). `_create_result` in `ioc_classifier.py` uses PEP 604 `str | None` syntax, which is fine on 3.10+. If you ever need to lower the floor below 3.10, switch those annotations to `Optional[str]` and update both `requires-python` and `tox.ini`'s `envlist`.
