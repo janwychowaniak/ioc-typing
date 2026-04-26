@@ -50,6 +50,10 @@ class TestIPv6Classification:
             "::",
             "fe80::1",
             "fe80::217:f2ff:fe07:ed62",
+            "fe80::1%eth0",  # Zone-id (link-local scope)
+            "fe80::217:f2ff:fe07:ed62%en0",
+            "::ffff:192.168.1.1",  # IPv4-mapped IPv6
+            "2001:db8::192.168.1.1",  # IPv6 with embedded IPv4
         ]
         for ip in valid_ips:
             result = classifier.classify(ip)
@@ -80,6 +84,8 @@ class TestDomainClassification:
             "example123.com",
             "example.co.uk",
             "xn--80ak6aa92e.com",  # Punycode domain
+            "example.com.",  # FQDN form (RFC 1034 root-zone trailing dot)
+            "sub.example.com.",
         ]
         for domain in valid_domains:
             result = classifier.classify(domain)
@@ -94,7 +100,7 @@ class TestDomainClassification:
         invalid_domains = [
             "example",  # No TLD
             ".example.com",  # Leading dot
-            "example.com.",  # Trailing dot
+            "example.com..",  # Double trailing dot
             "-example.com",  # Leading hyphen
             "example-.com",  # Trailing hyphen
             "exam ple.com",  # Space
@@ -183,6 +189,43 @@ class TestURLClassification:
             assert result["determined"] is True, f"Failed to classify valid URL: {url}"
             assert result["type_pri"] == "url", f"Wrong classification for URL: {url}"
 
+    def test_schemeless_url_variants(self, classifier):
+        # The schemeless branch of the URL regex requires the bare host to
+        # be followed by at least one of port/path/query/fragment (in that
+        # order). Without any trailing component, "example.com" stays a
+        # domain.
+        schemeless_urls = [
+            "example.com:8080",  # host + port
+            "example.com/path",  # host + path
+            "example.com?q=1",  # host + query
+            "example.com#section",  # host + fragment
+            # Combined components (URL-spec order: port, path, query, fragment)
+            "example.com:8080/path",
+            "example.com:8080/path?q=1",
+            "example.com:8080/path?q=1#x",
+            "sub.example.com:443/api?v=2#x",
+            "localhost:3000/foo",
+            "192.168.1.1:8080/api",
+            "example.com/path?q=1",
+            "example.com/path#x",
+            "example.com?q=1#x",
+        ]
+        for url in schemeless_urls:
+            result = classifier.classify(url)
+            assert (
+                result["determined"] is True
+            ), f"Failed to classify schemeless URL: {url}"
+            assert (
+                result["type_pri"] == "url"
+            ), f"Wrong classification for schemeless URL: {url}"
+
+    def test_bare_host_is_not_url(self, classifier):
+        # A host with no port/path/query/fragment must not match the
+        # schemeless URL branch — it should fall through to the domain
+        # check (or remain unclassified for trailing-dot etc.).
+        result = classifier.classify("example.com")
+        assert result["type_pri"] == "domain"
+
 
 class TestHashClassification:
     def test_valid_hashes(self, classifier):
@@ -190,14 +233,19 @@ class TestHashClassification:
             "md5": [
                 "d41d8cd98f00b204e9800998ecf8427e",
                 "e4d909c290d0fb1ca068ffaddf22cbd0",
+                "D41D8CD98F00B204E9800998ECF8427E",  # Uppercase
+                "D41d8CD98f00B204e9800998ECF8427e",  # Mixed case
             ],
             "sha1": [
                 "da39a3ee5e6b4b0d3255bfef95601890afd80709",
                 "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3",
+                "DA39A3EE5E6B4B0D3255BFEF95601890AFD80709",  # Uppercase
             ],
             "sha256": [
                 "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                 "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+                # Uppercase
+                "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
             ],
         }
         for hash_type, hashes in valid_hashes.items():
@@ -211,14 +259,18 @@ class TestHashClassification:
         invalid_hashes = [
             "d41d8cd98f00b204e9800998ecf8427",  # Too short MD5
             "d41d8cd98f00b204e9800998ecf8427ef",  # Too long MD5
-            "d41d8cd98f00b204e9800998ecf8427g",  # Invalid character
+            "d41d8cd98f00b204e9800998ecf8427g",  # MD5-length, invalid char
             "da39a3ee5e6b4b0d3255bfef95601890afd8070",  # Too short SHA1
             "da39a3ee5e6b4b0d3255bfef95601890afd80709a",  # Too long SHA1
+            # SHA1-length, invalid char ("z" at the end)
+            "da39a3ee5e6b4b0d3255bfef95601890afd8070z",
             # Too short SHA256
             "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b85",
             # Too long SHA256
             "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8555",
-            "abcdefghijklmnopqrstuvwxyz123456",  # Valid length but invalid chars
+            # SHA256-length, invalid char ("z" at the end)
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b85z",
+            "abcdefghijklmnopqrstuvwxyz123456",  # MD5-length, all non-hex letters
         ]
         for hash_value in invalid_hashes:
             result = classifier.classify(hash_value)
@@ -235,9 +287,40 @@ class TestMiscClassification:
             "abcdef",  # Just letters
             "@#$%^&*()",  # Special characters
             "a" * 100,  # Long string
+            "  192.168.1.1",  # Leading whitespace around an otherwise-valid IP
+            "192.168.1.1  ",  # Trailing whitespace
+            "\texample.com",  # Leading tab
+            "example.com\n",  # Trailing newline
         ]
         for input_value in unclassifiable:
             result = classifier.classify(input_value)
             assert result["determined"] is False
             assert result["type_pri"] is None
             assert result["type_sec"] is None
+
+    def test_non_string_input_raises(self, classifier):
+        # classify() accepts str only; non-str inputs surface as TypeError
+        # from the underlying re.match call. Pin that contract here.
+        for bad_input in [None, 123, 1.5, b"192.168.1.1", ["192.168.1.1"]]:
+            with pytest.raises(TypeError):
+                classifier.classify(bad_input)
+
+
+class TestResultContract:
+    @pytest.mark.parametrize(
+        "query",
+        [
+            "192.168.1.1",
+            "2001:db8::1",
+            "d41d8cd98f00b204e9800998ecf8427e",
+            "https://example.com/path",
+            "example.com",
+            "not an IOC",
+        ],
+    )
+    def test_query_field_is_preserved(self, classifier, query):
+        # The result dict must echo the input string verbatim, regardless
+        # of whether the input was classified.
+        result = classifier.classify(query)
+        assert result["query"] == query
+        assert set(result.keys()) == {"query", "determined", "type_pri", "type_sec"}
