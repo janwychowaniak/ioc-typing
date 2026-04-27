@@ -14,14 +14,14 @@ All workflows go through `tox` (wrapped by `make`):
 - `make test` / `tox` — run pytest with coverage (`pytest -v --cov=src tests`)
 - `make lint` — `ruff format --check` and `ruff check` over `src tests`
 - `make format` — apply `ruff format` and `ruff check --fix` in-place
-- `make typecheck` — `mypy --strict` over `src` (config in `pyproject.toml`)
+- `make typecheck` — `mypy --strict` over `src` and `tests` (config in `pyproject.toml`; tests have a relaxed override — see Architecture)
 - `make check` — `format`, `lint`, then `typecheck`
 - `make build` — `python -m build` (hatchling backend) + `twine check dist/*`
 - `make clean` / `make clean-all` — remove build artefacts (`clean-all` also removes `.venv/`)
 
 Run a single test: `tox -- tests/test_classifier.py::TestIPv4Classification::test_valid_ipv4` (everything after `--` is forwarded to pytest via `{posargs}`).
 
-`tox.ini` runs against `py310, py311, py312, py313` (matching `requires-python = ">=3.10"` in `pyproject.toml`). Ruff is configured with `line-length = 88` and `target-version = "py310"`; the `I` rule (import sorting) is enabled in addition to the default `E` + `F`. Mypy runs in `strict` mode against `src/` only (tests are excluded — pytest fixtures are inherently dynamic and the upside is small for this codebase).
+`tox.ini` runs against `py310, py311, py312, py313` (matching `requires-python = ">=3.10"` in `pyproject.toml`). Ruff is configured with `line-length = 88` and `target-version = "py310"`; the `I` rule (import sorting) is enabled in addition to the default `E` + `F`. Mypy runs in `strict` mode against both `src/` and `tests/`; an override on `tests.*` relaxes `disallow_untyped_defs`/`disallow_incomplete_defs`/`disallow_untyped_decorators` so test methods don't need `-> None` everywhere, while still type-checking calls into the library API. The override matches `tests.*` (dotted module path), which requires `tests/__init__.py` to exist — don't delete it.
 
 ## Architecture
 
