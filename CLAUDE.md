@@ -37,4 +37,4 @@ Every classification returns the `ClassificationResult` `TypedDict` (defined alo
 
 ## Python compatibility
 
-The project targets Python 3.10+ (`pyproject.toml` sets `requires-python = ">=3.10"`, with classifiers for 3.10/3.11/3.12/3.13). Annotations use PEP 585 builtin generics (`dict[...]`, `re.Pattern[str]`) and PEP 604 unions (`str | None`), both of which require 3.10+. If you ever need to lower the floor below 3.10, switch those to `Dict[...]`/`Optional[...]` from `typing` and update both `requires-python` and `tox.ini`'s `envlist`.
+The project targets Python 3.10+ (`pyproject.toml` sets `requires-python = ">=3.10"`, with classifiers for 3.10/3.11/3.12/3.13). Annotations use PEP 585 builtin generics (`dict[...]`, `re.Pattern[str]`) and PEP 604 unions (`str | None`), both of which require 3.10+.
