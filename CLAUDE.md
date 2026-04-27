@@ -25,6 +25,8 @@ Run a single test: `hatch run test tests/test_classifier.py::TestIPv4Classificat
 
 The `hatch-test` matrix env runs against Python 3.10/3.11/3.12/3.13, matching `requires-python = ">=3.10"`. Ruff is configured with `line-length = 88` and `target-version = "py310"`; the `I` rule (import sorting) is enabled in addition to the default `E` + `F`. Mypy runs in `strict` mode against both `src/` and `tests/`; an override on `tests.*` relaxes `disallow_untyped_defs`/`disallow_incomplete_defs`/`disallow_untyped_decorators` so test methods don't need `-> None` everywhere, while still type-checking calls into the library API. The override matches `tests.*` (dotted module path), which requires `tests/__init__.py` to exist — don't delete it.
 
+The package version is single-sourced from `__version__` in `src/ioc_typing/__init__.py`. `[project]` declares `dynamic = ["version"]` and `[tool.hatch.version] path = ...` tells hatchling where to read it. To bump, edit `__version__` directly or run `hatch version <new>` / `hatch version minor` / etc.
+
 ## Architecture
 
 The entire classifier lives in `src/ioc_typing/ioc_classifier.py`. Two design points worth knowing before editing:

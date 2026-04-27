@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ioc-typing"
-version = "0.1.0"
+dynamic = ["version"]
 requires-python = ">=3.10"
 description = "A Python library for identifying and classifying Indicators of Compromise (IOCs)"
 readme = "README.md"
@@ -35,6 +35,9 @@ dev = [
 Homepage = "https://github.com/janwychowaniak/ioc-typing"
 Repository = "https://github.com/janwychowaniak/ioc-typing"
 Issues = "https://github.com/janwychowaniak/ioc-typing/issues"
+
+[tool.hatch.version]
+path = "src/ioc_typing/__init__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ioc_typing"]
