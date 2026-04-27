@@ -8,20 +8,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Common commands
 
-All workflows go through `tox` (wrapped by `make`):
+All workflows go through `hatch` — both the build backend (hatchling) and env/script orchestration live in `pyproject.toml` under `[tool.hatch.*]`. Install hatch once with `pipx install hatch` (or `uv tool install hatch`).
 
-- `make dev` — create a persistent dev venv at `.venv/` (tox env `dev`, `usedevelop = true`)
-- `make test` / `tox` — run pytest with coverage (`pytest -v --cov=src tests`)
-- `make lint` — `ruff format --check` and `ruff check` over `src tests`
-- `make format` — apply `ruff format` and `ruff check --fix` in-place
-- `make typecheck` — `mypy --strict` over `src` and `tests` (config in `pyproject.toml`; tests have a relaxed override — see Architecture)
-- `make check` — `format`, `lint`, then `typecheck`
-- `make build` — `python -m build` (hatchling backend) + `twine check dist/*`
-- `make clean` / `make clean-all` — remove build artefacts (`clean-all` also removes `.venv/`)
+- `hatch run test` — pytest with coverage (`pytest -v --cov=src tests`) in the default env
+- `hatch run lint` — `ruff format --check` and `ruff check` over `src tests`
+- `hatch run format` — apply `ruff format` and `ruff check --fix` in-place
+- `hatch run typecheck` — `mypy --strict` over `src` and `tests` (tests have a relaxed override — see Architecture)
+- `hatch run check` — `format`, `lint`, then `typecheck`
+- `hatch run build-check` — `hatch build` (sdist + wheel) followed by `twine check dist/*`
+- `hatch test` — pytest in the dedicated `hatch-test` env (default Python). Add `--all` for the full matrix or `--cover` for coverage.
+- `hatch build` — sdist + wheel via the hatchling backend, output under `dist/`
+- `hatch shell` — drop into the default env's interpreter
+- `hatch env prune` — remove all hatch-managed environments
 
-Run a single test: `tox -- tests/test_classifier.py::TestIPv4Classification::test_valid_ipv4` (everything after `--` is forwarded to pytest via `{posargs}`).
+Run a single test: `hatch run test tests/test_classifier.py::TestIPv4Classification::test_valid_ipv4` (positional args after the script name are forwarded to pytest via `{args:tests}`).
 
-`tox.ini` runs against `py310, py311, py312, py313` (matching `requires-python = ">=3.10"` in `pyproject.toml`). Ruff is configured with `line-length = 88` and `target-version = "py310"`; the `I` rule (import sorting) is enabled in addition to the default `E` + `F`. Mypy runs in `strict` mode against both `src/` and `tests/`; an override on `tests.*` relaxes `disallow_untyped_defs`/`disallow_incomplete_defs`/`disallow_untyped_decorators` so test methods don't need `-> None` everywhere, while still type-checking calls into the library API. The override matches `tests.*` (dotted module path), which requires `tests/__init__.py` to exist — don't delete it.
+The `hatch-test` matrix env runs against Python 3.10/3.11/3.12/3.13, matching `requires-python = ">=3.10"`. Ruff is configured with `line-length = 88` and `target-version = "py310"`; the `I` rule (import sorting) is enabled in addition to the default `E` + `F`. Mypy runs in `strict` mode against both `src/` and `tests/`; an override on `tests.*` relaxes `disallow_untyped_defs`/`disallow_incomplete_defs`/`disallow_untyped_decorators` so test methods don't need `-> None` everywhere, while still type-checking calls into the library API. The override matches `tests.*` (dotted module path), which requires `tests/__init__.py` to exist — don't delete it.
 
 ## Architecture
 

@@ -28,9 +28,7 @@ dev = [
     "pytest-cov",
     "ruff",
     "mypy",
-    "build",
     "twine",
-    "tox",
 ]
 
 [project.urls]
@@ -57,3 +55,28 @@ disallow_untyped_defs = false
 disallow_incomplete_defs = false
 disallow_untyped_decorators = false
 
+[tool.hatch.envs.default]
+features = ["dev"]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest -v --cov=src {args:tests}"
+lint = [
+    "ruff format --check src tests",
+    "ruff check src tests",
+]
+format = [
+    "ruff format src tests",
+    "ruff check --fix src tests",
+]
+typecheck = "mypy"
+check = ["format", "lint", "typecheck"]
+build-check = [
+    "hatch build",
+    "twine check dist/*",
+]
+
+[tool.hatch.envs.hatch-test]
+features = ["dev"]
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.10", "3.11", "3.12", "3.13"]
