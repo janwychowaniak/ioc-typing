@@ -13,7 +13,8 @@ For development:
 ```bash
 git clone https://github.com/janwychowaniak/ioc-typing.git
 cd ioc-typing
-pip install -e ".[dev]"  # or "make dev" for easily creating a local venv
+pipx install hatch         # or: uv tool install hatch
+hatch shell                # drop into a managed dev env
 ```
 
 ## Usage
@@ -24,10 +25,14 @@ from ioc_typing import IOCClassifier
 
 classifier = IOCClassifier()
 
-# Classify different types of IOCs
-print(classifier.classify("192.168.1.1"))          # Output: IP_ADDRESS
-print(classifier.classify("evil.com"))             # Output: DOMAIN
-print(classifier.classify("44d88612fea8a8f36de82e1278abb02f")) # Output: MD5_HASH
+classifier.classify("192.168.1.1")
+# {'query': '192.168.1.1', 'determined': True, 'type_pri': 'ip', 'type_sec': 'v4'}
+
+classifier.classify("evil.com")
+# {'query': 'evil.com', 'determined': True, 'type_pri': 'domain', 'type_sec': None}
+
+classifier.classify("44d88612fea8a8f36de82e1278abb02f")
+# {'query': '44d88612fea8a8f36de82e1278abb02f', 'determined': True, 'type_pri': 'hash', 'type_sec': 'md5'}
 ```
 
 Batch classification:

@@ -35,7 +35,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pipx install hatch
-      - run: hatch run test
+      - run: hatch run test --cov-fail-under=95
 
   build:
     name: Build and validate distribution
