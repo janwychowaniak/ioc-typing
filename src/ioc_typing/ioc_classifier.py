@@ -1,5 +1,14 @@
 import re
-from typing import Dict, Pattern, Union
+from typing import TypedDict
+
+
+class ClassificationResult(TypedDict):
+    """Shape of every value returned by :meth:`IOCClassifier.classify`."""
+
+    query: str
+    determined: bool
+    type_pri: str | None
+    type_sec: str | None
 
 
 class IOCClassifier:
@@ -25,10 +34,10 @@ class IOCClassifier:
     positives, while still being flexible enough to handle common variations in format.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.patterns = self._compile_patterns()
 
-    def _compile_patterns(self) -> Dict[str, Pattern]:
+    def _compile_patterns(self) -> dict[str, re.Pattern[str]]:
         """
         Compile all regex patterns used for classification.
         Returns a dictionary of compiled patterns for better performance and
@@ -136,7 +145,7 @@ class IOCClassifier:
             "url": re.compile(url_pattern, re.IGNORECASE),
         }
 
-    def classify(self, query: str) -> Dict[str, Union[str, bool, None]]:
+    def classify(self, query: str) -> ClassificationResult:
         """
         Classify a given string into various cybersecurity-related types.
 
@@ -170,7 +179,7 @@ class IOCClassifier:
 
     def _create_result(
         self, query: str, type_pri: str, type_sec: str | None
-    ) -> Dict[str, Union[str, bool, None]]:
+    ) -> ClassificationResult:
         """Helper method to create a result dictionary."""
         return {
             "query": query,

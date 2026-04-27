@@ -4,23 +4,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-`ioc-typing` is a zero-dependency Python library that classifies a string as one of: IPv4/IPv6, domain, URL, or MD5/SHA1/SHA256 hash. The public API is a single class, `IOCClassifier`, exposed from `ioc_typing` (see `src/ioc_typing/__init__.py`).
+`ioc-typing` is a zero-dependency Python library that classifies a string as one of: IPv4/IPv6, domain, URL, or MD5/SHA1/SHA256 hash. The public API is `IOCClassifier` plus the `ClassificationResult` `TypedDict`, both exposed from `ioc_typing` (see `src/ioc_typing/__init__.py`). The package ships a `py.typed` marker so downstream type checkers consume the inline annotations.
 
 ## Common commands
 
-All workflows go through `tox` (wrapped by `make`):
+All workflows go through `hatch` — both the build backend (hatchling) and env/script orchestration live in `pyproject.toml` under `[tool.hatch.*]`. Install hatch once with `pipx install hatch` (or `uv tool install hatch`).
 
-- `make dev` — create a persistent dev venv at `.venv/` (tox env `dev`, `usedevelop = true`)
-- `make test` / `tox` — run pytest with coverage (`pytest -v --cov=src tests`)
-- `make lint` — `black --check`, `isort --check-only`, `flake8` over `src tests`
-- `make format` — apply `black` and `isort` in-place
-- `make check` — `format` then `lint`
-- `make build` — `python -m build` + `twine check dist/*`
-- `make clean` / `make clean-all` — remove build artefacts (`clean-all` also removes `.venv/`)
+- `hatch run test` — pytest with coverage (`pytest -v --cov=src tests`) in the default env
+- `hatch run lint` — `ruff format --check` and `ruff check` over `src tests`
+- `hatch run format` — apply `ruff format` and `ruff check --fix` in-place
+- `hatch run typecheck` — `mypy --strict` over `src` and `tests` (tests have a relaxed override — see Architecture)
+- `hatch run check` — `format`, `lint`, then `typecheck`
+- `hatch run build-check` — `hatch build` (sdist + wheel) followed by `twine check dist/*`
+- `hatch test` — pytest in the dedicated `hatch-test` env (default Python). Add `--all` for the full matrix or `--cover` for coverage.
+- `hatch build` — sdist + wheel via the hatchling backend, output under `dist/`
+- `hatch shell` — drop into the default env's interpreter
+- `hatch env prune` — remove all hatch-managed environments
 
-Run a single test: `tox -- tests/test_classifier.py::TestIPv4Classification::test_valid_ipv4` (everything after `--` is forwarded to pytest via `{posargs}`).
+Run a single test: `hatch run test tests/test_classifier.py::TestIPv4Classification::test_valid_ipv4` (positional args after the script name are forwarded to pytest via `{args:tests}`).
 
-`tox.ini` runs against `py310, py311, py312, py313` (matching `requires-python = ">=3.10"` in `pyproject.toml`). flake8 is configured for `max-line-length = 88` with `E203` ignored (Black-compatible).
+The `hatch-test` matrix env runs against Python 3.10/3.11/3.12/3.13, matching `requires-python = ">=3.10"`. Ruff is configured with `line-length = 88` and `target-version = "py310"`; the `I` rule (import sorting) is enabled in addition to the default `E` + `F`. Mypy runs in `strict` mode against both `src/` and `tests/`; an override on `tests.*` relaxes `disallow_untyped_defs`/`disallow_incomplete_defs`/`disallow_untyped_decorators` so test methods don't need `-> None` everywhere, while still type-checking calls into the library API. The override matches `tests.*` (dotted module path), which requires `tests/__init__.py` to exist — don't delete it.
+
+The package version is single-sourced from `__version__` in `src/ioc_typing/__init__.py`. `[project]` declares `dynamic = ["version"]` and `[tool.hatch.version] path = ...` tells hatchling where to read it. To bump, edit `__version__` directly or run `hatch version <new>` / `hatch version minor` / etc.
 
 ## Architecture
 
@@ -32,8 +37,8 @@ The entire classifier lives in `src/ioc_typing/ioc_classifier.py`. Two design po
 
 The domain regex accepts an optional trailing dot (`\.?`) to match the RFC 1034 FQDN form (e.g. `example.com.`). The URL host regex already accepts the same form, so `example.com.` and `example.com.:8080/path` both classify cleanly.
 
-Every classification returns the same shape: `{"query", "determined", "type_pri", "type_sec"}`. `type_sec` is `"v4"`/`"v6"` for IPs, the hash name for hashes, and `None` for URLs/domains. Unclassified inputs return `determined=False` with both type fields `None`. Non-string inputs surface as `TypeError` from the underlying `re.fullmatch` call (pinned by `TestMiscClassification.test_non_string_input_raises`). Tests in `tests/test_classifier.py` assert this contract per category — extending the classifier means adding both a positive and a negative test class following the existing pattern.
+Every classification returns the `ClassificationResult` `TypedDict` (defined alongside `IOCClassifier` in `ioc_classifier.py`): `{"query": str, "determined": bool, "type_pri": str | None, "type_sec": str | None}`. `type_sec` is `"v4"`/`"v6"` for IPs, the hash name for hashes, and `None` for URLs/domains. Unclassified inputs return `determined=False` with both type fields `None`. Non-string inputs surface as `TypeError` from the underlying `re.fullmatch` call (pinned by `TestMiscClassification.test_non_string_input_raises`). Tests in `tests/test_classifier.py` assert this contract per category — extending the classifier means adding both a positive and a negative test class following the existing pattern. If you add a new key to the result, update the `TypedDict` in the same edit so the public type stays in sync.
 
 ## Python compatibility
 
-The project targets Python 3.10+ (`pyproject.toml` sets `requires-python = ">=3.10"`, with classifiers for 3.10/3.11/3.12/3.13). `_create_result` in `ioc_classifier.py` uses PEP 604 `str | None` syntax, which is fine on 3.10+. If you ever need to lower the floor below 3.10, switch those annotations to `Optional[str]` and update both `requires-python` and `tox.ini`'s `envlist`.
+The project targets Python 3.10+ (`pyproject.toml` sets `requires-python = ">=3.10"`, with classifiers for 3.10/3.11/3.12/3.13). Annotations use PEP 585 builtin generics (`dict[...]`, `re.Pattern[str]`) and PEP 604 unions (`str | None`), both of which require 3.10+.
