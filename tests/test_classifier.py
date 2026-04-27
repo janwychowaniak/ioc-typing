@@ -89,12 +89,12 @@ class TestDomainClassification:
         ]
         for domain in valid_domains:
             result = classifier.classify(domain)
-            assert (
-                result["determined"] is True
-            ), f"Failed to classify valid domain: {domain}"
-            assert (
-                result["type_pri"] == "domain"
-            ), f"Wrong classification for domain: {domain}"
+            assert result["determined"] is True, (
+                f"Failed to classify valid domain: {domain}"
+            )
+            assert result["type_pri"] == "domain", (
+                f"Wrong classification for domain: {domain}"
+            )
 
     def test_invalid_domains(self, classifier):
         invalid_domains = [
@@ -212,12 +212,12 @@ class TestURLClassification:
         ]
         for url in schemeless_urls:
             result = classifier.classify(url)
-            assert (
-                result["determined"] is True
-            ), f"Failed to classify schemeless URL: {url}"
-            assert (
-                result["type_pri"] == "url"
-            ), f"Wrong classification for schemeless URL: {url}"
+            assert result["determined"] is True, (
+                f"Failed to classify schemeless URL: {url}"
+            )
+            assert result["type_pri"] == "url", (
+                f"Wrong classification for schemeless URL: {url}"
+            )
 
     def test_bare_host_is_not_url(self, classifier):
         # A host with no port/path/query/fragment must not match the
