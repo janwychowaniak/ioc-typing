@@ -1,5 +1,11 @@
 # IOC Typing (a classifier)
 
+[![CI](https://github.com/janwychowaniak/ioc-typing/actions/workflows/ci.yml/badge.svg)](https://github.com/janwychowaniak/ioc-typing/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/ioc-typing.svg)](https://pypi.org/project/ioc-typing/)
+[![Python versions](https://img.shields.io/pypi/pyversions/ioc-typing.svg)](https://pypi.org/project/ioc-typing/)
+[![License](https://img.shields.io/pypi/l/ioc-typing.svg)](https://github.com/janwychowaniak/ioc-typing/blob/main/LICENSE)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
 A Python library for identifying and classifying various types of Indicators of Compromise (IOCs). IOCs are forensic artifacts that indicate potential security breaches, malware infections, or other malicious activities in a system or network.
 
 ## Installation
