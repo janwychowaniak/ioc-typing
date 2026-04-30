@@ -1,6 +1,7 @@
 # IOC Typing (a classifier)
 
 [![CI](https://github.com/janwychowaniak/ioc-typing/actions/workflows/ci.yml/badge.svg)](https://github.com/janwychowaniak/ioc-typing/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/janwychowaniak/ioc-typing/branch/main/graph/badge.svg)](https://codecov.io/gh/janwychowaniak/ioc-typing)
 [![PyPI](https://img.shields.io/pypi/v/ioc-typing.svg)](https://pypi.org/project/ioc-typing/)
 [![Python versions](https://img.shields.io/pypi/pyversions/ioc-typing.svg)](https://pypi.org/project/ioc-typing/)
 [![License](https://img.shields.io/pypi/l/ioc-typing.svg)](https://github.com/janwychowaniak/ioc-typing/blob/main/LICENSE)
