@@ -57,6 +57,9 @@ for ioc in iocs:
     print(f"{ioc}: {ioc_type['type_pri']}")
 ```
 
+See [`examples/`](examples/) for runnable scripts (e.g. classifying a
+file of IOCs into TSV output).
+
 ## Features
 
 - Identifies multiple IOC types:
