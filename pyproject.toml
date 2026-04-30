@@ -29,6 +29,7 @@ dev = [
     "ruff",
     "mypy",
     "twine",
+    "pip-audit",
 ]
 
 [project.urls]
@@ -74,6 +75,7 @@ format = [
     "ruff check --fix src tests",
 ]
 typecheck = "mypy"
+audit = "pip-audit --skip-editable"
 check = ["format", "lint", "typecheck"]
 build-check = [
     "hatch build",
