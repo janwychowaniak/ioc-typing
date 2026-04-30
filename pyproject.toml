@@ -30,6 +30,7 @@ dev = [
     "mypy",
     "twine",
     "pip-audit",
+    "hypothesis",
 ]
 
 [project.urls]
