@@ -15,6 +15,7 @@ git clone https://github.com/janwychowaniak/ioc-typing.git
 cd ioc-typing
 pipx install hatch         # or: uv tool install hatch
 hatch shell                # drop into a managed dev env
+pipx install pre-commit && pre-commit install   # activate git hooks
 ```
 
 ## Usage
