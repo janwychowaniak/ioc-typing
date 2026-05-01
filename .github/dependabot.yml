@@ -9,6 +9,9 @@ updates:
     groups:
       dev-dependencies:
         patterns: ["*"]
+    labels:
+      - "dependencies"
+      - "python"
     open-pull-requests-limit: 5
 
   - package-ecosystem: "github-actions"
@@ -20,4 +23,7 @@ updates:
     groups:
       actions:
         patterns: ["*"]
+    labels:
+      - "dependencies"
+      - "github-actions"
     open-pull-requests-limit: 5

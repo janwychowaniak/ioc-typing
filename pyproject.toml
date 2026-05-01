@@ -24,13 +24,13 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0",
-    "pytest-cov",
-    "ruff",
-    "mypy",
-    "twine",
-    "pip-audit",
-    "hypothesis",
+    "pytest==9.0.3",
+    "pytest-cov==7.1.0",
+    "ruff==0.15.12",
+    "mypy==1.20.2",
+    "twine==6.2.0",
+    "pip-audit==2.10.0",
+    "hypothesis==6.152.4",
 ]
 
 [project.urls]
