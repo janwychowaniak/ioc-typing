@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `ioc-classify` command-line entry point. Reads one IOC per line from
+  a file or stdin and emits TSV (default) or JSON Lines, with graceful
+  handling of `BrokenPipeError` for pipeline use.
 - Pre-commit hygiene hooks (trailing whitespace, EOF newline, YAML/TOML
   validity, merge-conflict markers, large files, case conflicts).
 - `pip-audit` dependency-vulnerability job in CI.

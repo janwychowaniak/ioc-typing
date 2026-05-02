@@ -57,8 +57,22 @@ for ioc in iocs:
     print(f"{ioc}: {ioc_type['type_pri']}")
 ```
 
-See [`examples/`](examples/) for runnable scripts (e.g. classifying a
-file of IOCs into TSV output).
+See [`examples/`](examples/) for runnable scripts that use the API
+directly.
+
+### Command-line usage
+
+Installing the package also exposes an `ioc-classify` command:
+
+```bash
+ioc-classify iocs.txt                # TSV (default)
+ioc-classify --format json iocs.txt  # JSON Lines
+cat iocs.txt | ioc-classify          # read from stdin
+ioc-classify iocs.txt | awk -F'\t' '$3 == "hash"'  # pipeline-friendly
+```
+
+Blank lines and lines starting with `#` are skipped, so the input file
+can be commented.
 
 ## Features
 

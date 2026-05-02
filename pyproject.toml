@@ -38,6 +38,9 @@ Homepage = "https://github.com/janwychowaniak/ioc-typing"
 Repository = "https://github.com/janwychowaniak/ioc-typing"
 Issues = "https://github.com/janwychowaniak/ioc-typing/issues"
 
+[project.scripts]
+ioc-classify = "ioc_typing._cli:main"
+
 [tool.hatch.version]
 path = "src/ioc_typing/__init__.py"
 
