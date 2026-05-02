@@ -86,6 +86,17 @@ build-check = [
     "twine check dist/*",
 ]
 
+[tool.hatch.envs.docs]
+dependencies = [
+    "mkdocs==1.6.1",
+    "mkdocs-material==9.7.6",
+    "mkdocstrings[python]==1.0.4",
+]
+
+[tool.hatch.envs.docs.scripts]
+build = "mkdocs build --strict"
+serve = "mkdocs serve"
+
 [tool.hatch.envs.hatch-test]
 features = ["dev"]
 

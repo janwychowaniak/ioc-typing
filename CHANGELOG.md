@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- MkDocs Material documentation site auto-deployed to GitHub Pages
+  on every push to `main`, with an API reference page generated from
+  source docstrings via `mkdocstrings`.
 - `ioc-classify` command-line entry point. Reads one IOC per line from
   a file or stdin and emits TSV (default) or JSON Lines, with graceful
   handling of `BrokenPipeError` for pipeline use.

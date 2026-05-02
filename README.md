@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/janwychowaniak/ioc-typing/branch/main/graph/badge.svg)](https://codecov.io/gh/janwychowaniak/ioc-typing)
 [![PyPI](https://img.shields.io/pypi/v/ioc-typing.svg)](https://pypi.org/project/ioc-typing/)
 [![Python versions](https://img.shields.io/pypi/pyversions/ioc-typing.svg)](https://pypi.org/project/ioc-typing/)
+[![Docs](https://img.shields.io/badge/docs-mkdocs--material-blue.svg)](https://janwychowaniak.github.io/ioc-typing/)
 [![License](https://img.shields.io/pypi/l/ioc-typing.svg)](https://github.com/janwychowaniak/ioc-typing/blob/main/LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
