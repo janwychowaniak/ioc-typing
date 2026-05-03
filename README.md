@@ -1,5 +1,13 @@
 # IOC Typing (a classifier)
 
+[![CI](https://github.com/janwychowaniak/ioc-typing/actions/workflows/ci.yml/badge.svg)](https://github.com/janwychowaniak/ioc-typing/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/janwychowaniak/ioc-typing/branch/main/graph/badge.svg)](https://codecov.io/gh/janwychowaniak/ioc-typing)
+[![PyPI](https://img.shields.io/pypi/v/ioc-typing.svg)](https://pypi.org/project/ioc-typing/)
+[![Python versions](https://img.shields.io/pypi/pyversions/ioc-typing.svg)](https://pypi.org/project/ioc-typing/)
+[![Docs](https://img.shields.io/badge/docs-mkdocs--material-blue.svg)](https://janwychowaniak.github.io/ioc-typing/)
+[![License](https://img.shields.io/pypi/l/ioc-typing.svg)](https://github.com/janwychowaniak/ioc-typing/blob/main/LICENSE)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
 A Python library for identifying and classifying various types of Indicators of Compromise (IOCs). IOCs are forensic artifacts that indicate potential security breaches, malware infections, or other malicious activities in a system or network.
 
 ## Installation
@@ -15,6 +23,7 @@ git clone https://github.com/janwychowaniak/ioc-typing.git
 cd ioc-typing
 pipx install hatch         # or: uv tool install hatch
 hatch shell                # drop into a managed dev env
+pipx install pre-commit && pre-commit install   # activate git hooks
 ```
 
 ## Usage
@@ -48,6 +57,23 @@ for ioc in iocs:
     ioc_type = classifier.classify(ioc)
     print(f"{ioc}: {ioc_type['type_pri']}")
 ```
+
+See [`examples/`](examples/) for runnable scripts that use the API
+directly.
+
+### Command-line usage
+
+Installing the package also exposes an `ioc-classify` command:
+
+```bash
+ioc-classify iocs.txt                # TSV (default)
+ioc-classify --format json iocs.txt  # JSON Lines
+cat iocs.txt | ioc-classify          # read from stdin
+ioc-classify iocs.txt | awk -F'\t' '$3 == "hash"'  # pipeline-friendly
+```
+
+Blank lines and lines starting with `#` are skipped, so the input file
+can be commented.
 
 ## Features
 

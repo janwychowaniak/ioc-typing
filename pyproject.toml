@@ -24,17 +24,22 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0",
-    "pytest-cov",
-    "ruff",
-    "mypy",
-    "twine",
+    "pytest==9.0.3",
+    "pytest-cov==7.1.0",
+    "ruff==0.15.12",
+    "mypy==1.20.2",
+    "twine==6.2.0",
+    "pip-audit==2.10.0",
+    "hypothesis==6.152.4",
 ]
 
 [project.urls]
 Homepage = "https://github.com/janwychowaniak/ioc-typing"
 Repository = "https://github.com/janwychowaniak/ioc-typing"
 Issues = "https://github.com/janwychowaniak/ioc-typing/issues"
+
+[project.scripts]
+ioc-classify = "ioc_typing._cli:main"
 
 [tool.hatch.version]
 path = "src/ioc_typing/__init__.py"
@@ -74,11 +79,23 @@ format = [
     "ruff check --fix src tests",
 ]
 typecheck = "mypy"
+audit = "pip-audit --skip-editable"
 check = ["format", "lint", "typecheck"]
 build-check = [
     "hatch build",
     "twine check dist/*",
 ]
+
+[tool.hatch.envs.docs]
+dependencies = [
+    "mkdocs==1.6.1",
+    "mkdocs-material==9.7.6",
+    "mkdocstrings[python]==1.0.4",
+]
+
+[tool.hatch.envs.docs.scripts]
+build = "mkdocs build --strict"
+serve = "mkdocs serve"
 
 [tool.hatch.envs.hatch-test]
 features = ["dev"]
